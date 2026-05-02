@@ -18,7 +18,7 @@ export default function OrbitalHero({ onBook }) {
         {STARS.map((s, i) => (
           <span
             key={i}
-            className="absolute rounded-full bg-[--color-orb-text] opacity-60"
+            className="absolute rounded-full bg-(--color-orb-text) opacity-60"
             style={{
               left: `${s.x}%`,
               top: `${s.y}%`,
@@ -44,9 +44,9 @@ export default function OrbitalHero({ onBook }) {
         {/* text column */}
         <div>
           {/* badge */}
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-2 border border-[--color-orb-border] rounded-full bg-[--color-orb-surface] font-[family-name:--font-mono] text-xs text-[--color-orb-sub] mb-7">
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-2 border border-(--color-orb-border) rounded-full bg-(--color-orb-surface) font-jbmono text-xs text-(--color-orb-sub) mb-7">
             <span
-              className="w-2 h-2 rounded-full bg-[--color-orb-accent]"
+              className="w-2 h-2 rounded-full bg-(--color-orb-accent)"
               style={{
                 boxShadow: "0 0 8px #00e5ff",
                 animation: "orbTwinkle 1.4s ease-in-out infinite",
@@ -55,7 +55,7 @@ export default function OrbitalHero({ onBook }) {
             <span>SEASON_07 · ОНЛАЙН ЗАПИСЬ</span>
           </div>
 
-          <h1 className="font-[family-name:--font-unbounded] font-black leading-[0.95] tracking-[-0.04em] m-0 mb-6 text-[clamp(52px,10vw,92px)]">
+          <h1 className="font-unbounded font-black leading-[0.95] tracking-[-0.04em] m-0 mb-6 text-[clamp(44px,8vw,92px)]">
             <span className="block">Квизы,</span>
             <span
               className="block italic"
@@ -71,7 +71,7 @@ export default function OrbitalHero({ onBook }) {
             <span className="block">остаются звёзды.</span>
           </h1>
 
-          <p className="text-base sm:text-lg leading-relaxed text-[--color-orb-sub] max-w-[480px] mb-9">
+          <p className="text-base sm:text-lg leading-relaxed text-(--color-orb-sub) max-w-[480px] mb-9">
             Каждую среду и субботу — 7 раундов вопросов, бар, друзья и шанс
             попасть в зал славы. Никакой подготовки. Только космос.
           </p>
@@ -90,22 +90,22 @@ export default function OrbitalHero({ onBook }) {
             </button>
             <a
               href="#schedule"
-              className="text-sm font-medium px-5 sm:px-[22px] py-4 sm:py-[18px] border border-[--color-orb-border] rounded-full bg-[--color-orb-surface] text-[--color-orb-text] no-underline transition-colors duration-150 hover:text-[--color-orb-accent]"
+              className="text-sm font-medium px-5 sm:px-[22px] py-4 sm:py-[18px] border border-(--color-orb-border) rounded-full bg-(--color-orb-surface) text-(--color-orb-text) no-underline transition-colors duration-150 hover:text-(--color-orb-accent)"
             >
               Все даты месяца
             </a>
           </div>
 
           {/* stats */}
-          <div className="mt-10 sm:mt-12 flex gap-6 sm:gap-8 font-[family-name:--font-mono]">
+          <div className="mt-10 sm:mt-12 flex gap-6 sm:gap-8 font-jbmono">
             {[
               { n: "9",    l: "квизов в мае" },
               { n: "560+", l: "игроков сезона" },
               { n: "3",    l: "бара-партнёра" },
             ].map((x) => (
               <div key={x.l}>
-                <div className="text-2xl sm:text-[28px] text-[--color-orb-accent] font-bold">{x.n}</div>
-                <div className="text-[10px] sm:text-[11px] text-[--color-orb-sub] uppercase tracking-[0.18em] mt-0.5">{x.l}</div>
+                <div className="text-2xl sm:text-[28px] text-(--color-orb-accent) font-bold">{x.n}</div>
+                <div className="text-[10px] sm:text-[11px] text-(--color-orb-sub) uppercase tracking-[0.18em] mt-0.5">{x.l}</div>
               </div>
             ))}
           </div>

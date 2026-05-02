@@ -15,10 +15,6 @@
   --color-orb-modal-bg: rgba(8, 2, 24, 0.8);
   --color-orb-modal-card: rgba(20, 10, 42, 0.95);
   --color-sold-out: #ff5570;
-
-  --font-unbounded: "Unbounded", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-  --font-inter: "Inter", system-ui, sans-serif;
 }
 
 @keyframes orbSpin {
@@ -52,6 +48,20 @@
 @keyframes sqRise {
   from { transform: translateY(20px); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
+}
+
+@utility font-unbounded {
+  font-family: "Unbounded", sans-serif;
+}
+@utility font-jbmono {
+  font-family: "JetBrains Mono", monospace;
+}
+@utility font-inter {
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html, body {

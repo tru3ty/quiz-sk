@@ -13,20 +13,20 @@ export default function OrbitalRules() {
         {SQ_RULES.map((r) => (
           <div
             key={r.n}
-            className="relative p-6 border border-[--color-orb-border] bg-[--color-orb-surface] rounded-[22px] min-h-[220px] flex flex-col justify-between overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:border-[--color-orb-accent] hover:bg-[--color-orb-surface-strong]"
+            className="relative p-6 border border-(--color-orb-border) bg-(--color-orb-surface) rounded-[22px] min-h-[220px] flex flex-col justify-between overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:border-(--color-orb-accent) hover:bg-(--color-orb-surface-strong)"
           >
             <div
               className="absolute -top-7 -right-7 w-[120px] h-[120px] rounded-full pointer-events-none"
               style={{ background: "radial-gradient(circle, rgba(0,229,255,0.13), transparent 70%)" }}
             />
-            <div className="font-[family-name:--font-mono] text-xs tracking-[0.2em] text-[--color-orb-accent]">
+            <div className="font-jbmono text-xs tracking-[0.2em] text-(--color-orb-accent)">
               {r.n}
             </div>
             <div>
-              <div className="font-[family-name:--font-unbounded] text-xl sm:text-[22px] font-bold mb-2.5 tracking-tight">
+              <div className="font-unbounded text-[22px] font-bold mb-2.5 tracking-[-0.01em]">
                 {r.t}
               </div>
-              <div className="text-sm text-[--color-orb-sub] leading-relaxed">{r.d}</div>
+              <div className="text-sm text-(--color-orb-sub) leading-relaxed">{r.d}</div>
             </div>
           </div>
         ))}

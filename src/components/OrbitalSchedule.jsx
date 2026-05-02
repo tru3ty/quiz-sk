@@ -25,18 +25,18 @@ export default function OrbitalSchedule({ onBook }) {
       <div className="grid grid-cols-1 lg:grid-cols-[1.05fr_1fr] gap-9 items-start">
         {/* Calendar */}
         <div
-          className="p-4 sm:p-6 bg-[--color-orb-surface] border border-[--color-orb-border] rounded-[28px]"
+          className="p-4 sm:p-6 bg-(--color-orb-surface) border border-(--color-orb-border) rounded-[28px]"
           style={{ backdropFilter: "blur(14px)" }}
         >
           <div className="flex justify-between items-center mb-4 sm:mb-[18px]">
-            <div className="font-[family-name:--font-unbounded] font-bold text-lg sm:text-[22px]">
+            <div className="font-unbounded font-bold text-lg sm:text-[22px]">
               {MONTH_LABEL}
             </div>
             <div className="flex gap-2">
               {["‹", "›"].map((a) => (
                 <button
                   key={a}
-                  className="w-9 h-9 rounded-full border border-[--color-orb-border] bg-transparent text-[--color-orb-text] cursor-pointer text-base"
+                  className="w-9 h-9 rounded-full border border-(--color-orb-border) bg-transparent text-(--color-orb-text) cursor-pointer text-base"
                 >
                   {a}
                 </button>
@@ -45,7 +45,7 @@ export default function OrbitalSchedule({ onBook }) {
           </div>
 
           {/* day headers */}
-          <div className="grid grid-cols-7 gap-1 sm:gap-1.5 font-[family-name:--font-mono] text-[10px] sm:text-[11px] text-[--color-orb-sub] mb-2 uppercase tracking-[0.16em]">
+          <div className="grid grid-cols-7 gap-1 sm:gap-1.5 font-jbmono text-[10px] sm:text-[11px] text-(--color-orb-sub) mb-2 uppercase tracking-[0.16em]">
             {["пн", "вт", "ср", "чт", "пт", "сб", "вс"].map((d) => (
               <div key={d} className="py-1 px-0.5 sm:px-2">{d}</div>
             ))}
@@ -63,7 +63,7 @@ export default function OrbitalSchedule({ onBook }) {
                   key={i}
                   onClick={() => ev && onBook(ev)}
                   disabled={!ev}
-                  className="aspect-square rounded-xl sm:rounded-[14px] border flex flex-col justify-between p-1 sm:p-2 font-[family-name:--font-mono] transition-all duration-[180ms] disabled:cursor-default"
+                  className="aspect-square rounded-xl sm:rounded-[14px] border flex flex-col justify-between p-1 sm:p-2 font-jbmono transition-all duration-[180ms] disabled:cursor-default"
                   style={{
                     border: ev ? `1px solid ${color}88` : "1px solid transparent",
                     background: ev ? `linear-gradient(160deg, ${color}22, transparent)` : "transparent",
@@ -84,14 +84,14 @@ export default function OrbitalSchedule({ onBook }) {
                     </span>
                   )}
                   {ev && sold && (
-                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[--color-sold-out]" />
+                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-(--color-sold-out)" />
                   )}
                 </button>
               );
             })}
           </div>
 
-          <div className="mt-4 pt-4 border-t border-dashed border-[--color-orb-border] flex gap-4 flex-wrap font-[family-name:--font-mono] text-[11px] text-[--color-orb-sub]">
+          <div className="mt-4 pt-4 border-t border-dashed border-(--color-orb-border) flex gap-4 flex-wrap font-jbmono text-[11px] text-(--color-orb-sub)">
             <Legend color="#00e5ff" label="Среда · 19:30" />
             <Legend color="#ff2ec4" label="Суббота · 20:00" />
             <Legend color="#ff5570" label="Sold out" />
@@ -100,7 +100,7 @@ export default function OrbitalSchedule({ onBook }) {
 
         {/* Upcoming list */}
         <div>
-          <div className="font-[family-name:--font-mono] text-[11px] tracking-[0.2em] text-[--color-orb-sub] uppercase mb-3.5">
+          <div className="font-jbmono text-[11px] tracking-[0.2em] text-(--color-orb-sub) uppercase mb-3.5">
             // ближайшие 4 квиза
           </div>
           <div className="grid gap-3.5">

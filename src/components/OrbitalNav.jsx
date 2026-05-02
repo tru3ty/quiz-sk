@@ -18,7 +18,7 @@ export default function OrbitalNav() {
     <nav className="flex justify-between items-center px-6 sm:px-10 lg:px-14 py-5 sm:py-6 relative z-10">
       <a
         href="#"
-        className="flex items-center gap-3 font-[family-name:--font-unbounded] font-black text-lg sm:text-[22px] tracking-tight text-[--color-orb-text] no-underline transition-colors duration-150 hover:text-[--color-orb-accent]"
+        className="flex items-center gap-3 font-unbounded font-black text-[22px] tracking-[-0.02em] text-(--color-orb-text) no-underline transition-colors duration-150 hover:text-(--color-orb-accent)"
       >
         <OrbitalLogo />
         <span>STARQUIZ</span>
@@ -29,12 +29,12 @@ export default function OrbitalNav() {
           <a
             key={x}
             href="#"
-            className="hidden sm:block text-sm font-medium text-[--color-orb-text] no-underline transition-colors duration-150 hover:text-[--color-orb-accent]"
+            className="hidden sm:block text-sm font-medium text-(--color-orb-text) no-underline transition-colors duration-150 hover:text-(--color-orb-accent)"
           >
             {x}
           </a>
         ))}
-        <button className="px-4 sm:px-5 py-2.5 border border-[--color-orb-border] bg-[--color-orb-surface] text-[--color-orb-text] rounded-full cursor-pointer text-sm font-semibold transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_60px_color-mix(in_srgb,var(--color-orb-accent)_33%,transparent),0_0_0_1px_var(--color-orb-accent)]">
+        <button className="px-4 sm:px-5 py-2.5 border border-(--color-orb-border) bg-(--color-orb-surface) text-(--color-orb-text) rounded-full cursor-pointer text-sm font-semibold transition-transform duration-150 hover:-translate-y-0.5 hover:shadow-[0_16px_60px_color-mix(in_srgb,var(--color-orb-accent)_33%,transparent),0_0_0_1px_var(--color-orb-accent)]">
           tg&nbsp;/&nbsp;@starquiz
         </button>
       </div>

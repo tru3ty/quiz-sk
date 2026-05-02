@@ -12,7 +12,7 @@ export default function OrbitalSystem() {
         return (
           <div
             key={i}
-            className="absolute rounded-full border border-dashed border-[--color-orb-border]"
+            className="absolute rounded-full border border-dashed border-(--color-orb-border)"
             style={{
               inset,
               animation: `${r.dir} ${r.dur} linear infinite`,
@@ -63,13 +63,13 @@ export default function OrbitalSystem() {
 
       {/* LIVE chip */}
       <div
-        className="absolute -bottom-2.5 right-0 px-4 py-2.5 border border-[--color-orb-accent] rounded-full font-[family-name:--font-mono] text-xs text-[--color-orb-text]"
+        className="absolute -bottom-2.5 right-0 px-4 py-2.5 border border-(--color-orb-accent) rounded-full font-jbmono text-xs text-(--color-orb-text)"
         style={{
           background: "rgba(255,255,255,0.07)",
           boxShadow: "0 0 30px rgba(0,229,255,0.2)",
         }}
       >
-        <span className="text-[--color-orb-accent]">● LIVE</span>&nbsp;&nbsp;next quiz · сб 20:00
+        <span className="text-(--color-orb-accent)">● LIVE</span>&nbsp;&nbsp;next quiz · сб 20:00
       </div>
     </div>
   );

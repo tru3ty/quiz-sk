@@ -4,7 +4,7 @@ import { peopleWord } from "../data/events.js";
 function Field({ label, hint, children }) {
   return (
     <label className="block">
-      <div className="flex justify-between items-baseline text-[11px] tracking-[0.16em] uppercase font-[family-name:--font-mono] mb-2 text-[rgba(255,255,255,0.55)]">
+      <div className="flex justify-between items-baseline text-[11px] tracking-[0.16em] uppercase font-jbmono mb-2 text-[rgba(255,255,255,0.55)]">
         <span>{label}</span>
         {hint && <span className="normal-case tracking-normal text-[11px] opacity-70">{hint}</span>}
       </div>
@@ -31,7 +31,7 @@ export default function BookingModal({ event, onClose }) {
   const fullSold = event.seats === 0;
 
   const inputCls =
-    "w-full px-3.5 py-3 bg-[rgba(255,255,255,0.04)] border border-[--color-orb-border] rounded-xl text-[--color-orb-text] text-[15px] font-[family-name:--font-inter] transition-[border-color,box-shadow] duration-120 placeholder-[rgba(244,242,255,0.4)] focus:outline-none focus:border-[--color-orb-accent] focus:shadow-[0_0_0_3px_rgba(0,229,255,0.2)]";
+    "w-full px-3.5 py-3 bg-[rgba(255,255,255,0.04)] border border-(--color-orb-border) rounded-xl text-(--color-orb-text) text-[15px] font-inter transition-[border-color,box-shadow] duration-120 placeholder-[rgba(244,242,255,0.4)] focus:outline-none focus:border-(--color-orb-accent) focus:shadow-[0_0_0_3px_rgba(0,229,255,0.2)]";
 
   return (
     <div
@@ -45,7 +45,7 @@ export default function BookingModal({ event, onClose }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-[min(560px,92%)] border border-[--color-orb-border] rounded-3xl p-6 sm:p-8 text-[--color-orb-text]"
+        className="relative w-[min(560px,92%)] border border-(--color-orb-border) rounded-3xl p-6 sm:p-8 text-(--color-orb-text)"
         style={{
           background: "rgba(20,10,42,0.95)",
           animation: "sqRise 280ms cubic-bezier(.2,.8,.2,1)",
@@ -55,20 +55,20 @@ export default function BookingModal({ event, onClose }) {
         <button
           onClick={onClose}
           aria-label="Закрыть"
-          className="absolute top-3.5 right-3.5 w-9 h-9 bg-transparent border border-[--color-orb-border] rounded-full text-[--color-orb-text] cursor-pointer text-base leading-none"
+          className="absolute top-3.5 right-3.5 w-9 h-9 bg-transparent border border-(--color-orb-border) rounded-full text-(--color-orb-text) cursor-pointer text-base leading-none"
         >
           ×
         </button>
 
         {!done ? (
           <>
-            <div className="font-[family-name:--font-mono] text-[11px] tracking-[0.2em] text-[--color-orb-accent] uppercase">
+            <div className="font-jbmono text-[11px] tracking-[0.2em] text-(--color-orb-accent) uppercase">
               Запись на квиз
             </div>
-            <h2 className="font-[family-name:--font-unbounded] text-[26px] sm:text-[30px] leading-tight mt-2.5 mb-1 font-bold tracking-tight">
+            <h2 className="font-unbounded text-[26px] sm:text-[30px] leading-tight mt-2.5 mb-1 font-bold tracking-tight">
               {event.title}
             </h2>
-            <div className="text-[--color-orb-sub] text-sm mb-5 font-[family-name:--font-mono]">
+            <div className="text-(--color-orb-sub) text-sm mb-5 font-jbmono">
               {String(event.date).padStart(2, "0")}.05 · {event.day} · {event.time} · {event.host}
             </div>
 
@@ -99,7 +99,7 @@ export default function BookingModal({ event, onClose }) {
                         key={n}
                         type="button"
                         onClick={() => setPeople(n)}
-                        className="w-[38px] h-[38px] rounded-xl border font-semibold cursor-pointer font-[family-name:--font-mono] transition-all duration-120"
+                        className="w-[38px] h-[38px] rounded-xl border font-semibold cursor-pointer font-jbmono transition-all duration-120"
                         style={{
                           border: `1px solid ${people === n ? "#00e5ff" : "rgba(255,255,255,0.12)"}`,
                           background: people === n ? "#00e5ff" : "transparent",
@@ -122,10 +122,10 @@ export default function BookingModal({ event, onClose }) {
                 </Field>
               </div>
 
-              <div className="flex justify-between items-center mt-1.5 pt-3.5 border-t border-dashed border-[--color-orb-border] font-[family-name:--font-mono] text-xs text-[--color-orb-sub]">
+              <div className="flex justify-between items-center mt-1.5 pt-3.5 border-t border-dashed border-(--color-orb-border) font-jbmono text-xs text-(--color-orb-sub)">
                 <span>{fullSold ? "ЛИСТ ОЖИДАНИЯ" : `Свободно ${event.seats} из ${event.total}`}</span>
                 <span>
-                  {people} × 800 ₽ = <span className="text-[--color-orb-text]">{people * 800} ₽</span>
+                  {people} × 800 ₽ = <span className="text-(--color-orb-text)">{people * 800} ₽</span>
                 </span>
               </div>
 
@@ -145,29 +145,29 @@ export default function BookingModal({ event, onClose }) {
         ) : (
           <div className="py-2.5 text-center">
             <div
-              className="w-[78px] h-[78px] mx-auto mb-4 rounded-full border border-[--color-orb-accent] flex items-center justify-center"
+              className="w-[78px] h-[78px] mx-auto mb-4 rounded-full border border-(--color-orb-accent) flex items-center justify-center"
               style={{ background: "radial-gradient(circle, #00e5ff 0%, rgba(0,229,255,0) 70%)" }}
             >
               <span
-                className="w-[38px] h-[38px] rounded-full flex items-center justify-center font-[family-name:--font-mono] text-[28px]"
+                className="w-[38px] h-[38px] rounded-full flex items-center justify-center font-jbmono text-[28px]"
                 style={{ background: "#00e5ff", color: "#0a0420" }}
               >
                 ✓
               </span>
             </div>
-            <div className="font-[family-name:--font-mono] text-[11px] tracking-[0.2em] text-[--color-orb-accent] uppercase mb-1.5">
+            <div className="font-jbmono text-[11px] tracking-[0.2em] text-(--color-orb-accent) uppercase mb-1.5">
               СИГНАЛ ПРИНЯТ
             </div>
-            <h2 className="font-[family-name:--font-unbounded] text-[26px] m-0 mb-2 font-bold">
+            <h2 className="font-unbounded text-[26px] m-0 mb-2 font-bold">
               Места забронированы
             </h2>
-            <p className="text-[--color-orb-sub] text-sm mx-auto max-w-[360px]">
-              Команда <b className="text-[--color-orb-text]">«{team || "Без названия"}»</b> · {people} {peopleWord(people)} · {String(event.date).padStart(2, "0")}.05 в {event.time}.
+            <p className="text-(--color-orb-sub) text-sm mx-auto max-w-[360px]">
+              Команда <b className="text-(--color-orb-text)">«{team || "Без названия"}»</b> · {people} {peopleWord(people)} · {String(event.date).padStart(2, "0")}.05 в {event.time}.
               Подтверждение прилетит в Telegram через минуту.
             </p>
             <button
               onClick={onClose}
-              className="mt-5 px-5 py-3 bg-transparent text-[--color-orb-text] border border-[--color-orb-border] rounded-full cursor-pointer"
+              className="mt-5 px-5 py-3 bg-transparent text-(--color-orb-text) border border-(--color-orb-border) rounded-full cursor-pointer"
             >
               Закрыть
             </button>
