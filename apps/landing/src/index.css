@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  --color-orb-bg-from: #2b0a52;
+  --color-orb-bg-mid: #0a0420;
+  --color-orb-bg: #050010;
+  --color-orb-text: #f4f2ff;
+  --color-orb-sub: rgba(244, 242, 255, 0.6);
+  --color-orb-accent: #00e5ff;
+  --color-orb-accent2: #ff2ec4;
+  --color-orb-accent3: #b388ff;
+  --color-orb-surface: rgba(255, 255, 255, 0.04);
+  --color-orb-surface-strong: rgba(255, 255, 255, 0.07);
+  --color-orb-border: rgba(255, 255, 255, 0.12);
+  --color-orb-modal-bg: rgba(8, 2, 24, 0.8);
+  --color-orb-modal-card: rgba(20, 10, 42, 0.95);
+  --color-sold-out: #ff5570;
+}
+
+@keyframes orbSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes orbSpinR {
+  from { transform: rotate(360deg); }
+  to   { transform: rotate(0deg); }
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes orbTwinkle {
+  0%, 100% { opacity: 0.25; }
+  50%       { opacity: 1; }
+}
+@keyframes orbTickerScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes orbGlowPulse {
+  0%, 100% { filter: blur(40px); opacity: 0.6; }
+  50%       { filter: blur(50px); opacity: 0.85; }
+}
+@keyframes sqFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes sqRise {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@utility font-unbounded {
+  font-family: "Unbounded", sans-serif;
+}
+@utility font-jbmono {
+  font-family: "JetBrains Mono", monospace;
+}
+@utility font-inter {
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #050010;
+  color: #f4f2ff;
+  font-family: "Inter", system-ui, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+button { font-family: inherit; }
