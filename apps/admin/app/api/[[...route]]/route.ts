@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import { auth } from "@/lib/auth";
-import { db, events, bookings, eq } from "@starquiz/db";
+import { db, events, bookings, venues, eq } from "@starquiz/db";
 
 export const runtime = "edge";
 
@@ -33,6 +33,20 @@ app.delete("/events/:id", async (c) => {
   const id = Number(c.req.param("id"));
   await db.delete(events).where(eq(events.id, id));
   return c.json({ ok: true });
+});
+
+// Venues
+app.get("/venues", async (c) => {
+  const rows = await db.select().from(venues);
+  return c.json(rows);
+});
+
+app.post("/venues", async (c) => {
+  const body = await c.req.json();
+  const existing = await db.select().from(venues).where(eq(venues.address, body.address));
+  if (existing.length > 0) return c.json(existing[0]);
+  const [row] = await db.insert(venues).values(body).returning();
+  return c.json(row, 201);
 });
 
 // Bookings
