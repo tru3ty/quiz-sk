@@ -1,30 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddressSuggest from "./AddressSuggest";
+
+interface Template {
+  id: number;
+  title: string;
+  theme: string;
+  time: string;
+  total: number;
+  host: string;
+  tags: string[];
+}
 
 interface Props {
   onClose: () => void;
   onSaved: () => void;
 }
 
-const DAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"];
 const STATUSES = [
   { value: "draft", label: "Черновик" },
   { value: "published", label: "Опубликовано" },
   { value: "cancelled", label: "Отменено" },
 ];
 
+const DAYS_RU = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
+
+function getDayName(dateStr: string): string {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  return DAYS_RU[d.getDay()];
+}
+
 export default function EventForm({ onClose, onSaved }: Props) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [templates, setTemplates] = useState<Template[]>([]);
   const [address, setAddress] = useState("");
   const [venueName, setVenueName] = useState("");
   const [fields, setFields] = useState({
     title: "",
     theme: "",
     date: "",
-    day: "Пятница",
     time: "19:00",
     total: "30",
     host: "",
@@ -32,8 +49,27 @@ export default function EventForm({ onClose, onSaved }: Props) {
     status: "draft" as "draft" | "published" | "cancelled",
   });
 
+  useEffect(() => {
+    fetch("/api/templates").then(r => r.json()).then(setTemplates);
+  }, []);
+
   function set(k: keyof typeof fields, v: string) {
     setFields(f => ({ ...f, [k]: v }));
+  }
+
+  function applyTemplate(id: string) {
+    if (!id) return;
+    const t = templates.find(t => t.id === Number(id));
+    if (!t) return;
+    setFields(f => ({
+      ...f,
+      title: t.title,
+      theme: t.theme,
+      time: t.time,
+      total: String(t.total),
+      host: t.host,
+      tags: t.tags.join(", "),
+    }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -48,11 +84,11 @@ export default function EventForm({ onClose, onSaved }: Props) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: venueName || address, address }),
         });
-        const venue = await vRes.json();
-        venueId = venue.id;
+        venueId = (await vRes.json()).id;
       }
 
       const dateTs = fields.date ? Math.floor(new Date(fields.date).getTime() / 1000) : 0;
+      const day = getDayName(fields.date);
 
       await fetch("/api/events", {
         method: "POST",
@@ -61,7 +97,7 @@ export default function EventForm({ onClose, onSaved }: Props) {
           title: fields.title,
           theme: fields.theme,
           date: dateTs,
-          day: fields.day,
+          day,
           time: fields.time,
           seats: 0,
           total: Number(fields.total),
@@ -80,6 +116,8 @@ export default function EventForm({ onClose, onSaved }: Props) {
     }
   }
 
+  const dayHint = getDayName(fields.date);
+
   return (
     <div style={{
       position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
@@ -96,6 +134,16 @@ export default function EventForm({ onClose, onSaved }: Props) {
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+          {templates.length > 0 && (
+            <Field label="Шаблон">
+              <select style={inputStyle} defaultValue="" onChange={e => applyTemplate(e.target.value)}>
+                <option value="">— выбрать шаблон —</option>
+                {templates.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
+              </select>
+            </Field>
+          )}
+
           <Field label="Название" required>
             <input style={inputStyle} required value={fields.title} onChange={e => set("title", e.target.value)} placeholder="StarQuiz: Весенний сезон" />
           </Field>
@@ -105,24 +153,17 @@ export default function EventForm({ onClose, onSaved }: Props) {
           </Field>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
-            <Field label="Дата" required>
+            <Field label={`Дата${dayHint ? ` — ${dayHint}` : ""}`} required>
               <input style={inputStyle} type="date" required value={fields.date} onChange={e => set("date", e.target.value)} />
             </Field>
-            <Field label="День недели">
-              <select style={inputStyle} value={fields.day} onChange={e => set("day", e.target.value)}>
-                {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </Field>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             <Field label="Время">
               <input style={inputStyle} type="time" value={fields.time} onChange={e => set("time", e.target.value)} />
             </Field>
-            <Field label="Всего мест" required>
-              <input style={inputStyle} type="number" required min={1} value={fields.total} onChange={e => set("total", e.target.value)} />
-            </Field>
           </div>
+
+          <Field label="Всего мест" required>
+            <input style={inputStyle} type="number" required min={1} value={fields.total} onChange={e => set("total", e.target.value)} />
+          </Field>
 
           <Field label="Адрес площадки">
             <AddressSuggest value={address} onChange={setAddress} placeholder="Начни вводить адрес..." />

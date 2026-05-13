@@ -8,6 +8,13 @@
       "when": 1778521779884,
       "tag": "0000_sharp_longshot",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778617974247,
+      "tag": "0001_complex_arachne",
+      "breakpoints": true
     }
   ]
 }

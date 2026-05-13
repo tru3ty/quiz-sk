@@ -25,6 +25,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4, padding: "0 12px" }}>
           {[
             { href: "/events", label: "// events" },
+            { href: "/templates", label: "// templates" },
             { href: "/bookings", label: "// bookings" },
           ].map(({ href, label }) => (
             <Link key={href} href={href} style={{

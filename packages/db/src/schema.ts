@@ -25,6 +25,17 @@ export const events = pgTable("events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const eventTemplates = pgTable("event_templates", {
+  id:        serial("id").primaryKey(),
+  title:     text("title").notNull(),
+  theme:     text("theme").notNull().default(""),
+  time:      text("time").notNull().default("19:00"),
+  total:     integer("total").notNull().default(30),
+  host:      text("host").notNull().default(""),
+  tags:      text("tags").array().notNull().default([]),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const bookings = pgTable("bookings", {
   id:        serial("id").primaryKey(),
   eventId:   integer("event_id").references(() => events.id).notNull(),

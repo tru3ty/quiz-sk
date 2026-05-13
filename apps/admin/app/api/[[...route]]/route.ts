@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import { auth } from "@/lib/auth";
-import { db, events, bookings, venues, eq } from "@starquiz/db";
+import { db, events, bookings, venues, eventTemplates, eq } from "@starquiz/db";
 
 export const runtime = "edge";
 
@@ -47,6 +47,31 @@ app.post("/venues", async (c) => {
   if (existing.length > 0) return c.json(existing[0]);
   const [row] = await db.insert(venues).values(body).returning();
   return c.json(row, 201);
+});
+
+// Templates
+app.get("/templates", async (c) => {
+  const rows = await db.select().from(eventTemplates);
+  return c.json(rows);
+});
+
+app.post("/templates", async (c) => {
+  const body = await c.req.json();
+  const [row] = await db.insert(eventTemplates).values(body).returning();
+  return c.json(row, 201);
+});
+
+app.patch("/templates/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const body = await c.req.json();
+  const [row] = await db.update(eventTemplates).set(body).where(eq(eventTemplates.id, id)).returning();
+  return c.json(row);
+});
+
+app.delete("/templates/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  await db.delete(eventTemplates).where(eq(eventTemplates.id, id));
+  return c.json({ ok: true });
 });
 
 // Bookings
