@@ -89,6 +89,7 @@ export const bookings = pgTable("bookings", {
   teamName:  text("team_name").notNull(),
   people:    integer("people").notNull(),
   phone:     text("phone").notNull(),
+  email:     text("email"),
   status:    bookingStatusEnum("status").notNull().default("pending"),
   createdAt: timestamp("created_at").defaultNow(),
 });

@@ -1,4 +1,5 @@
-import { SQ_EVENTS, MONTH_LABEL, buildMonthGrid, themeColor } from "../data/events.js";
+import { useState } from "react";
+import { themeColor } from "../data/events.js";
 import SectionHeader from "./SectionHeader.jsx";
 import ScheduleCard from "./ScheduleCard.jsx";
 
@@ -11,14 +12,45 @@ function Legend({ color, label }) {
   );
 }
 
-export default function OrbitalSchedule({ onBook }) {
-  const grid = buildMonthGrid();
+const MONTH_NAMES = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+
+function buildGrid(events, year, month) {
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // пн=0
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < firstDow; i++) cells.push({ blank: true });
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ev = events.find(e => e.date === d && e.month === month && e.year === year);
+    cells.push({ day: d, ev });
+  }
+  while (cells.length % 7 !== 0) cells.push({ blank: true });
+  return cells;
+}
+
+export default function OrbitalSchedule({ events, loading, onBook }) {
+  const now = new Date();
+  const [viewYear, setViewYear] = useState(now.getFullYear());
+  const [viewMonth, setViewMonth] = useState(now.getMonth());
+
+  const grid = buildGrid(events, viewYear, viewMonth);
+  const monthEvents = events
+    .filter(e => e.month === viewMonth && e.year === viewYear)
+    .sort((a, b) => a.date - b.date);
+
+  function prevMonth() {
+    if (viewMonth === 0) { setViewYear(y => y - 1); setViewMonth(11); }
+    else setViewMonth(m => m - 1);
+  }
+  function nextMonth() {
+    if (viewMonth === 11) { setViewYear(y => y + 1); setViewMonth(0); }
+    else setViewMonth(m => m + 1);
+  }
 
   return (
     <section id="schedule" className="px-6 sm:px-10 lg:px-14 py-20 sm:py-24 max-w-[1280px] mx-auto relative z-[2]">
       <SectionHeader
         kicker="// schedule"
-        title="Карта мая"
+        title="Расписание"
         subtitle="Выбирай дату — и записывайся прямо из календаря."
       />
 
@@ -30,28 +62,20 @@ export default function OrbitalSchedule({ onBook }) {
         >
           <div className="flex justify-between items-center mb-4 sm:mb-[18px]">
             <div className="font-unbounded font-bold text-lg sm:text-[22px]">
-              {MONTH_LABEL}
+              {MONTH_NAMES[viewMonth]} {viewYear}
             </div>
             <div className="flex gap-2">
-              {["‹", "›"].map((a) => (
-                <button
-                  key={a}
-                  className="w-9 h-9 rounded-full border border-(--color-orb-border) bg-transparent text-(--color-orb-text) cursor-pointer text-base"
-                >
-                  {a}
-                </button>
-              ))}
+              <button onClick={prevMonth} className="w-9 h-9 rounded-full border border-(--color-orb-border) bg-transparent text-(--color-orb-text) cursor-pointer text-base">‹</button>
+              <button onClick={nextMonth} className="w-9 h-9 rounded-full border border-(--color-orb-border) bg-transparent text-(--color-orb-text) cursor-pointer text-base">›</button>
             </div>
           </div>
 
-          {/* day headers */}
           <div className="grid grid-cols-7 gap-1 sm:gap-1.5 font-jbmono text-[10px] sm:text-[11px] text-(--color-orb-sub) mb-2 uppercase tracking-[0.16em]">
             {["пн", "вт", "ср", "чт", "пт", "сб", "вс"].map((d) => (
               <div key={d} className="py-1 px-0.5 sm:px-2">{d}</div>
             ))}
           </div>
 
-          {/* grid */}
           <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
             {grid.map((c, i) => {
               if (c.blank) return <div key={i} className="aspect-square" />;
@@ -72,7 +96,7 @@ export default function OrbitalSchedule({ onBook }) {
                     opacity: ev ? 1 : 0.55,
                   }}
                   onMouseEnter={(e) => { if (ev) e.currentTarget.style.background = "rgba(255,255,255,0.07)"; }}
-                  onMouseLeave={(e) => { if (ev) e.currentTarget.style.background = `linear-gradient(160deg, ${color}22, transparent)`; }}
+                  onMouseLeave={(e) => { if (ev) e.currentTarget.style.background = ev ? `linear-gradient(160deg, ${color}22, transparent)` : "transparent"; }}
                 >
                   <span className="text-[11px] sm:text-[13px] font-semibold text-left">
                     {String(c.day).padStart(2, "0")}
@@ -83,17 +107,13 @@ export default function OrbitalSchedule({ onBook }) {
                       <span className="block opacity-85">{sold ? "—" : `${ev.seats} мест`}</span>
                     </span>
                   )}
-                  {ev && sold && (
-                    <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-(--color-sold-out)" />
-                  )}
                 </button>
               );
             })}
           </div>
 
           <div className="mt-4 pt-4 border-t border-dashed border-(--color-orb-border) flex gap-4 flex-wrap font-jbmono text-[11px] text-(--color-orb-sub)">
-            <Legend color="#00e5ff" label="Среда · 19:30" />
-            <Legend color="#ff2ec4" label="Суббота · 20:00" />
+            <Legend color="#00e5ff" label="Есть места" />
             <Legend color="#ff5570" label="Sold out" />
           </div>
         </div>
@@ -101,15 +121,22 @@ export default function OrbitalSchedule({ onBook }) {
         {/* Upcoming list */}
         <div>
           <div className="font-jbmono text-[11px] tracking-[0.2em] text-(--color-orb-sub) uppercase mb-3.5">
-            // ближайшие 4 квиза
+            // ближайшие квизы
           </div>
-          <div className="grid gap-3.5">
-            {SQ_EVENTS.slice(0, 4).map((ev) => (
-              <ScheduleCard key={ev.date} ev={ev} onBook={() => onBook(ev)} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="font-jbmono text-(--color-orb-sub) text-sm">загрузка...</div>
+          ) : monthEvents.length === 0 ? (
+            <div className="font-jbmono text-(--color-orb-sub) text-sm">// мероприятий нет</div>
+          ) : (
+            <div className="grid gap-3.5">
+              {monthEvents.slice(0, 4).map((ev) => (
+                <ScheduleCard key={ev.id} ev={ev} onBook={() => onBook(ev)} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>
   );
 }
+
