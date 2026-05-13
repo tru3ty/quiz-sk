@@ -1,9 +1,19 @@
 import { db, bookings, events, contacts, eq } from "@starquiz/db";
 import { sendBookingConfirmation, sendAdminNotification } from "@/lib/email";
 
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+};
+
+export async function OPTIONS() {
+  return new Response(null, { status: 204, headers: CORS });
+}
+
 export async function GET() {
   const rows = await db.select().from(bookings).orderBy(bookings.createdAt);
-  return Response.json(rows);
+  return Response.json(rows, { headers: CORS });
 }
 
 export async function POST(req: Request) {
@@ -30,5 +40,5 @@ export async function POST(req: Request) {
     } catch (e) { console.error("Admin email:", e); }
   }
 
-  return Response.json(booking, { status: 201 });
+  return Response.json(booking, { status: 201, headers: CORS });
 }
