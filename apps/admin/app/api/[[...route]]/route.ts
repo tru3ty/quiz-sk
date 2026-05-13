@@ -107,34 +107,6 @@ app.get("/bookings", async (c) => {
   return c.json(rows);
 });
 
-app.post("/bookings", async (c) => {
-  const body = await c.req.json();
-  const [booking] = await db.insert(bookings).values(body).returning();
-
-  // Триггерим уведомления асинхронно
-  const baseUrl = process.env.BETTER_AUTH_URL ?? "http://localhost:3001";
-  const event = await db.select().from(events).where(eq(events.id, body.eventId));
-  if (event[0] && body.email) {
-    const ev = event[0];
-    const date = new Date(ev.date * 1000).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
-    fetch(`${baseUrl}/api/notify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userName: body.name,
-        userEmail: body.email,
-        teamName: body.teamName,
-        people: body.people,
-        eventTitle: ev.title,
-        eventDate: date,
-        eventTime: ev.time,
-        eventAddress: "",
-      }),
-    }).catch(() => {});
-  }
-
-  return c.json(booking, 201);
-});
 
 app.get("/bookings/event/:eventId", async (c) => {
   const eventId = Number(c.req.param("eventId"));
@@ -147,6 +119,12 @@ app.patch("/bookings/:id", async (c) => {
   const body = await c.req.json();
   const [row] = await db.update(bookings).set(body).where(eq(bookings.id, id)).returning();
   return c.json(row);
+});
+
+app.delete("/bookings/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  await db.delete(bookings).where(eq(bookings.id, id));
+  return c.json({ ok: true });
 });
 
 export const GET = handle(app);

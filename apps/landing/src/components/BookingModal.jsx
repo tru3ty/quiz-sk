@@ -31,7 +31,7 @@ export default function BookingModal({ event, onClose, apiBase }) {
 
   if (!event) return null;
 
-  const fullSold = event.seats === 0;
+  const fullSold = (event.total - event.seats) <= 0;
 
   const inputCls =
     "w-full px-3.5 py-3 bg-[rgba(255,255,255,0.04)] border border-(--color-orb-border) rounded-xl text-(--color-orb-text) text-[15px] font-inter transition-[border-color,box-shadow] duration-120 placeholder-[rgba(244,242,255,0.4)] focus:outline-none focus:border-(--color-orb-accent) focus:shadow-[0_0_0_3px_rgba(0,229,255,0.2)]";
@@ -142,7 +142,7 @@ export default function BookingModal({ event, onClose, apiBase }) {
               </Field>
 
               <div className="flex justify-between items-center mt-1.5 pt-3.5 border-t border-dashed border-(--color-orb-border) font-jbmono text-xs text-(--color-orb-sub)">
-                <span>{fullSold ? "ЛИСТ ОЖИДАНИЯ" : `Свободно ${event.seats} из ${event.total}`}</span>
+                <span>{fullSold ? "ЛИСТ ОЖИДАНИЯ" : `Свободно ${event.total - event.seats} из ${event.total}`}</span>
                 <span>
                   {people} × 800 ₽ = <span className="text-(--color-orb-text)">{people * 800} ₽</span>
                 </span>

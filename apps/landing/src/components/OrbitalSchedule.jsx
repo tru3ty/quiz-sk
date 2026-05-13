@@ -15,13 +15,13 @@ function Legend({ color, label }) {
 const MONTH_NAMES = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
 
 function buildGrid(events, year, month) {
-  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7; // пн=0
+  const firstDow = (new Date(year, month, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const cells = [];
   for (let i = 0; i < firstDow; i++) cells.push({ blank: true });
   for (let d = 1; d <= daysInMonth; d++) {
-    const ev = events.find(e => e.date === d && e.month === month && e.year === year);
-    cells.push({ day: d, ev });
+    const dayEvents = events.filter(e => e.date === d && e.month === month && e.year === year);
+    cells.push({ day: d, events: dayEvents, ev: dayEvents[0] ?? null });
   }
   while (cells.length % 7 !== 0) cells.push({ blank: true });
   return cells;
@@ -31,6 +31,7 @@ export default function OrbitalSchedule({ events, loading, onBook }) {
   const now = new Date();
   const [viewYear, setViewYear] = useState(now.getFullYear());
   const [viewMonth, setViewMonth] = useState(now.getMonth());
+  const [pickEvents, setPickEvents] = useState(null);
 
   const grid = buildGrid(events, viewYear, viewMonth);
   const monthEvents = events
@@ -79,24 +80,30 @@ export default function OrbitalSchedule({ events, loading, onBook }) {
           <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
             {grid.map((c, i) => {
               if (c.blank) return <div key={i} className="aspect-square" />;
+              const dayEvs = c.events;
               const ev = c.ev;
-              const sold = ev && ev.seats === 0;
+              const hasEvents = dayEvs.length > 0;
+              const sold = hasEvents && dayEvs.every(e => e.total - e.seats <= 0);
               const color = ev ? themeColor(ev.theme) : null;
               return (
                 <button
                   key={i}
-                  onClick={() => ev && onBook(ev)}
-                  disabled={!ev}
-                  className="aspect-square rounded-xl sm:rounded-[14px] border flex flex-col justify-between p-1 sm:p-2 font-jbmono transition-all duration-[180ms] disabled:cursor-default"
-                  style={{
-                    border: ev ? `1px solid ${color}88` : "1px solid transparent",
-                    background: ev ? `linear-gradient(160deg, ${color}22, transparent)` : "transparent",
-                    color: "#f4f2ff",
-                    cursor: ev ? "pointer" : "default",
-                    opacity: ev ? 1 : 0.55,
+                  onClick={() => {
+                    if (!hasEvents) return;
+                    if (dayEvs.length === 1) onBook(dayEvs[0]);
+                    else setPickEvents(dayEvs);
                   }}
-                  onMouseEnter={(e) => { if (ev) e.currentTarget.style.background = "rgba(255,255,255,0.07)"; }}
-                  onMouseLeave={(e) => { if (ev) e.currentTarget.style.background = ev ? `linear-gradient(160deg, ${color}22, transparent)` : "transparent"; }}
+                  disabled={!hasEvents}
+                  className="aspect-square rounded-xl sm:rounded-[14px] border flex flex-col justify-between p-1 sm:p-2 font-jbmono transition-all duration-[180ms] disabled:cursor-default relative"
+                  style={{
+                    border: hasEvents ? `1px solid ${color}88` : "1px solid transparent",
+                    background: hasEvents ? `linear-gradient(160deg, ${color}22, transparent)` : "transparent",
+                    color: "#f4f2ff",
+                    cursor: hasEvents ? "pointer" : "default",
+                    opacity: hasEvents ? 1 : 0.55,
+                  }}
+                  onMouseEnter={(e) => { if (hasEvents) e.currentTarget.style.background = "rgba(255,255,255,0.07)"; }}
+                  onMouseLeave={(e) => { if (hasEvents) e.currentTarget.style.background = `linear-gradient(160deg, ${color}22, transparent)`; }}
                 >
                   <span className="text-[11px] sm:text-[13px] font-semibold text-left">
                     {String(c.day).padStart(2, "0")}
@@ -104,7 +111,12 @@ export default function OrbitalSchedule({ events, loading, onBook }) {
                   {ev && (
                     <span className="text-[8px] sm:text-[10px] text-left leading-tight opacity-95">
                       <span className="block font-semibold" style={{ color }}>{ev.time}</span>
-                      <span className="block opacity-85">{sold ? "—" : `${ev.seats} мест`}</span>
+                      <span className="block opacity-85">{sold ? "—" : `${ev.total - ev.seats} мест`}</span>
+                    </span>
+                  )}
+                  {dayEvs.length > 1 && (
+                    <span style={{ position: "absolute", top: 4, right: 4, background: color, color: "#0a0420", borderRadius: "50%", width: 14, height: 14, fontSize: 9, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700 }}>
+                      {dayEvs.length}
                     </span>
                   )}
                 </button>
@@ -136,6 +148,48 @@ export default function OrbitalSchedule({ events, loading, onBook }) {
           )}
         </div>
       </div>
+      {pickEvents && (
+        <div
+          onClick={() => setPickEvents(null)}
+          style={{ position: "fixed", inset: 0, background: "rgba(8,2,24,0.8)", backdropFilter: "blur(8px)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center" }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ background: "rgba(20,10,42,0.97)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 20, padding: 28, width: "min(480px, 92%)" }}
+          >
+            <div className="font-jbmono text-[11px] tracking-[0.2em] text-(--color-orb-accent) uppercase mb-3">
+              // выбери квиз
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {pickEvents.map(ev => {
+                const free = ev.total - ev.seats;
+                const sold = free <= 0;
+                const color = themeColor(ev.theme);
+                return (
+                  <button
+                    key={ev.id}
+                    onClick={() => { setPickEvents(null); onBook(ev); }}
+                    style={{
+                      display: "flex", justifyContent: "space-between", alignItems: "center",
+                      padding: "14px 18px", borderRadius: 12, cursor: "pointer",
+                      background: `linear-gradient(160deg, ${color}18, transparent)`,
+                      border: `1px solid ${color}44`, color: "#f4f2ff", textAlign: "left",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 600, fontSize: 15 }}>{ev.title}</div>
+                      <div style={{ fontSize: 12, color: "rgba(244,242,255,0.5)", marginTop: 3, fontFamily: "monospace" }}>
+                        {ev.time} · {sold ? "sold out" : `${free} мест`}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 13, color, fontFamily: "monospace" }}>→</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

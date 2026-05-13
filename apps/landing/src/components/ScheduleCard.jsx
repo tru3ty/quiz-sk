@@ -2,7 +2,8 @@ import { themeColor } from "../data/events.js";
 
 export default function ScheduleCard({ ev, onBook }) {
   const color = themeColor(ev.theme);
-  const sold = ev.seats === 0;
+  const free = ev.total - ev.seats;
+  const sold = free <= 0;
   return (
     <div
       className="grid grid-cols-[auto_1fr_auto] items-center gap-3 sm:gap-[18px] p-4 sm:p-5 bg-(--color-orb-surface) border border-(--color-orb-border) rounded-[18px] transition-all duration-200 hover:-translate-y-0.5 hover:border-(--color-orb-accent) hover:bg-(--color-orb-surface-strong)"
@@ -44,7 +45,7 @@ export default function ScheduleCard({ ev, onBook }) {
           border: sold ? "1px solid rgba(255,255,255,0.12)" : "none",
         }}
       >
-        {sold ? "Sold out" : "Записаться"}
+        {sold ? "Sold out" : "Записаться →"}
       </button>
     </div>
   );
