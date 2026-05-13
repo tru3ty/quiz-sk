@@ -6,9 +6,7 @@ interface Template {
   id: number;
   title: string;
   theme: string;
-  time: string;
   total: number;
-  host: string;
   tags: string[];
 }
 
@@ -16,7 +14,7 @@ export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [fields, setFields] = useState({ title: "", theme: "", time: "19:00", total: "30", host: "", tags: "" });
+  const [fields, setFields] = useState({ title: "", theme: "", total: "30", tags: "" });
   const [saving, setSaving] = useState(false);
 
   async function load() {
@@ -41,13 +39,11 @@ export default function TemplatesPage() {
       body: JSON.stringify({
         title: fields.title,
         theme: fields.theme,
-        time: fields.time,
         total: Number(fields.total),
-        host: fields.host,
         tags: fields.tags ? fields.tags.split(",").map(t => t.trim()).filter(Boolean) : [],
       }),
     });
-    setFields({ title: "", theme: "", time: "19:00", total: "30", host: "", tags: "" });
+    setFields({ title: "", theme: "", total: "30", tags: "" });
     setShowForm(false);
     setSaving(false);
     load();
@@ -82,17 +78,9 @@ export default function TemplatesPage() {
               <input style={inputStyle} value={fields.theme} onChange={e => set("theme", e.target.value)} placeholder="Поп-культура..." />
             </Field>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
-            <Field label="Время">
-              <input style={inputStyle} type="time" value={fields.time} onChange={e => set("time", e.target.value)} />
-            </Field>
-            <Field label="Мест">
-              <input style={inputStyle} type="number" min={1} value={fields.total} onChange={e => set("total", e.target.value)} />
-            </Field>
-            <Field label="Ведущий">
-              <input style={inputStyle} value={fields.host} onChange={e => set("host", e.target.value)} placeholder="Имя" />
-            </Field>
-          </div>
+          <Field label="Мест">
+            <input style={inputStyle} type="number" min={1} value={fields.total} onChange={e => set("total", e.target.value)} />
+          </Field>
           <Field label="Теги (через запятую)">
             <input style={inputStyle} value={fields.tags} onChange={e => set("tags", e.target.value)} placeholder="квиз, музыка" />
           </Field>
@@ -117,9 +105,7 @@ export default function TemplatesPage() {
                 <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4 }}>{t.title}</div>
                 <div style={{ fontSize: 13, color: "rgba(244,242,255,0.5)", display: "flex", gap: 14, flexWrap: "wrap" }}>
                   {t.theme && <span>{t.theme}</span>}
-                  <span>{t.time}</span>
                   <span>{t.total} мест</span>
-                  {t.host && <span>ведущий: {t.host}</span>}
                   {t.tags.length > 0 && <span>{t.tags.join(", ")}</span>}
                 </div>
               </div>

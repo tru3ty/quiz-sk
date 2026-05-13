@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import { auth } from "@/lib/auth";
-import { db, events, bookings, venues, eventTemplates, eq } from "@starquiz/db";
+import { db, events, bookings, venues, eventTemplates, contacts, eq } from "@starquiz/db";
 
 export const runtime = "edge";
 
@@ -74,10 +74,58 @@ app.delete("/templates/:id", async (c) => {
   return c.json({ ok: true });
 });
 
+// Contacts / settings
+app.get("/contacts", async (c) => {
+  const rows = await db.select().from(contacts);
+  return c.json(Object.fromEntries(rows.map(r => [r.key, r.value])));
+});
+
+app.post("/contacts", async (c) => {
+  const body: Record<string, string> = await c.req.json();
+  for (const [key, value] of Object.entries(body)) {
+    const existing = await db.select().from(contacts).where(eq(contacts.key, key));
+    if (existing.length > 0) {
+      await db.update(contacts).set({ value }).where(eq(contacts.key, key));
+    } else {
+      await db.insert(contacts).values({ key, value });
+    }
+  }
+  return c.json({ ok: true });
+});
+
 // Bookings
 app.get("/bookings", async (c) => {
   const rows = await db.select().from(bookings).orderBy(bookings.createdAt);
   return c.json(rows);
+});
+
+app.post("/bookings", async (c) => {
+  const body = await c.req.json();
+  const [booking] = await db.insert(bookings).values(body).returning();
+
+  // Триггерим уведомления асинхронно
+  const baseUrl = process.env.BETTER_AUTH_URL ?? "http://localhost:3001";
+  const event = await db.select().from(events).where(eq(events.id, body.eventId));
+  if (event[0] && body.email) {
+    const ev = event[0];
+    const date = new Date(ev.date * 1000).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+    fetch(`${baseUrl}/api/notify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userName: body.name,
+        userEmail: body.email,
+        teamName: body.teamName,
+        people: body.people,
+        eventTitle: ev.title,
+        eventDate: date,
+        eventTime: ev.time,
+        eventAddress: "",
+      }),
+    }).catch(() => {});
+  }
+
+  return c.json(booking, 201);
 });
 
 app.get("/bookings/event/:eventId", async (c) => {

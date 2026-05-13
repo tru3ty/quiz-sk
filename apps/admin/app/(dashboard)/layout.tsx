@@ -27,6 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             { href: "/events", label: "// events" },
             { href: "/templates", label: "// templates" },
             { href: "/bookings", label: "// bookings" },
+            { href: "/settings", label: "// settings" },
           ].map(({ href, label }) => (
             <Link key={href} href={href} style={{
               padding: "10px 12px", borderRadius: 8, fontSize: 14,

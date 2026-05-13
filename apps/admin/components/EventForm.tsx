@@ -9,7 +9,6 @@ interface Template {
   theme: string;
   time: string;
   total: number;
-  host: string;
   tags: string[];
 }
 
@@ -44,7 +43,6 @@ export default function EventForm({ onClose, onSaved }: Props) {
     date: "",
     time: "19:00",
     total: "30",
-    host: "",
     tags: "",
     status: "draft" as "draft" | "published" | "cancelled",
   });
@@ -67,7 +65,6 @@ export default function EventForm({ onClose, onSaved }: Props) {
       theme: t.theme,
       time: t.time,
       total: String(t.total),
-      host: t.host,
       tags: t.tags.join(", "),
     }));
   }
@@ -102,7 +99,7 @@ export default function EventForm({ onClose, onSaved }: Props) {
           seats: 0,
           total: Number(fields.total),
           venueId,
-          host: fields.host,
+          host: "",
           tags: fields.tags ? fields.tags.split(",").map(t => t.trim()).filter(Boolean) : [],
           status: fields.status,
         }),
@@ -171,10 +168,6 @@ export default function EventForm({ onClose, onSaved }: Props) {
 
           <Field label="Название площадки">
             <input style={inputStyle} value={venueName} onChange={e => setVenueName(e.target.value)} placeholder="Бар Gagarin, Лофт 42..." />
-          </Field>
-
-          <Field label="Ведущий">
-            <input style={inputStyle} value={fields.host} onChange={e => set("host", e.target.value)} placeholder="Имя ведущего" />
           </Field>
 
           <Field label="Теги (через запятую)">
