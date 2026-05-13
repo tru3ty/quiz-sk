@@ -9,7 +9,7 @@ export const runtime = "edge";
 const app = new Hono().basePath("/api");
 
 app.use("*", cors({
-  origin: (origin) => origin ?? "*",
+  origin: ["https://quiz-sk.pages.dev", "https://quiz-sk-admin-djep.vercel.app", "http://localhost:5173", "http://localhost:3001"],
   allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization"],
   credentials: true,
