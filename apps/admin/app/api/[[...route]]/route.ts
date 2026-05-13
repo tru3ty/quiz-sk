@@ -1,11 +1,19 @@
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
+import { cors } from "hono/cors";
 import { auth } from "@/lib/auth";
 import { db, events, bookings, venues, eventTemplates, contacts, eq } from "@starquiz/db";
 
 export const runtime = "edge";
 
 const app = new Hono().basePath("/api");
+
+app.use("*", cors({
+  origin: (origin) => origin ?? "*",
+  allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+}));
 
 // Auth — Better Auth handles all /api/auth/* routes
 app.on(["GET", "POST"], "/auth/**", (c) => auth.handler(c.req.raw));
