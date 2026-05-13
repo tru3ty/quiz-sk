@@ -11,4 +11,8 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7,
   },
+  trustedOrigins: [
+    "https://quiz-sk-admin-djep.vercel.app",
+    "http://localhost:3001",
+  ],
 });
