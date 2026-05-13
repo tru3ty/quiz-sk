@@ -1,6 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 
 interface Booking {
   id: number;
@@ -21,10 +25,10 @@ interface Event {
   time: string;
 }
 
-const STATUS_COLORS = {
-  pending:   { bg: "rgba(255,255,255,0.06)", color: "rgba(244,242,255,0.5)" },
-  confirmed: { bg: "rgba(0,229,255,0.1)",    color: "#00e5ff" },
-  cancelled: { bg: "rgba(255,85,112,0.1)",   color: "#ff5570" },
+const STATUS_STYLES = {
+  pending:   "bg-white/[0.06] text-white/50",
+  confirmed: "bg-[#00e5ff]/10 text-[#00e5ff]",
+  cancelled: "bg-[#ff5570]/10 text-[#ff5570]",
 };
 
 const STATUS_LABELS = { pending: "ожидание", confirmed: "подтверждено", cancelled: "отменено" };
@@ -35,14 +39,11 @@ export default function BookingsPage() {
   const [loading, setLoading] = useState(true);
   const [editId, setEditId] = useState<number | null>(null);
   const [editPeople, setEditPeople] = useState(1);
-  const [filterEvent, setFilterEvent] = useState<number | "">("");
+  const [filterEvent, setFilterEvent] = useState<string>("all");
 
   async function load() {
     setLoading(true);
-    const [bRes, eRes] = await Promise.all([
-      fetch("/api/bookings"),
-      fetch("/api/events"),
-    ]);
+    const [bRes, eRes] = await Promise.all([fetch("/api/bookings"), fetch("/api/events")]);
     const bData: Booking[] = await bRes.json();
     const eData: Event[] = await eRes.json();
     setBookings(bData);
@@ -78,7 +79,9 @@ export default function BookingsPage() {
   }
 
   const eventIds = [...new Set(bookings.map(b => b.eventId))];
-  const filtered = filterEvent ? bookings.filter(b => b.eventId === Number(filterEvent)) : bookings;
+  const filtered = filterEvent !== "all"
+    ? bookings.filter(b => b.eventId === Number(filterEvent))
+    : bookings;
 
   function formatDate(ts: number) {
     return new Date(ts * 1000).toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
@@ -86,81 +89,70 @@ export default function BookingsPage() {
 
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
-        <h1 style={{ margin: 0, fontFamily: "monospace", fontSize: 22 }}>// bookings</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ fontSize: 13, color: "rgba(244,242,255,0.4)", fontFamily: "monospace" }}>
-            всего: {filtered.length}
-          </span>
+      <div className="flex justify-between items-center mb-7">
+        <h1 className="m-0 font-mono text-[22px]">// bookings</h1>
+        <div className="flex items-center gap-3">
+          <span className="text-[13px] text-white/40 font-mono">всего: {filtered.length}</span>
           {eventIds.length > 1 && (
-            <select
-              value={filterEvent}
-              onChange={e => setFilterEvent(e.target.value === "" ? "" : Number(e.target.value))}
-              style={selectStyle}
-            >
-              <option value="">все мероприятия</option>
-              {eventIds.map(id => (
-                <option key={id} value={id}>
-                  {events[id]?.title ?? `#${id}`}
-                </option>
-              ))}
-            </select>
+            <Select value={filterEvent} onValueChange={setFilterEvent}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="все мероприятия" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">все мероприятия</SelectItem>
+                {eventIds.map(id => (
+                  <SelectItem key={id} value={String(id)}>
+                    {events[id]?.title ?? `#${id}`}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           )}
         </div>
       </div>
 
       {loading ? (
-        <p style={{ color: "rgba(244,242,255,0.4)", fontFamily: "monospace" }}>загрузка...</p>
+        <p className="text-white/40 font-mono">загрузка...</p>
       ) : filtered.length === 0 ? (
-        <p style={{ color: "rgba(244,242,255,0.4)", fontFamily: "monospace" }}>// броней пока нет</p>
+        <p className="text-white/40 font-mono">// броней пока нет</p>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="flex flex-col gap-2.5">
           {filtered.map(b => {
             const ev = events[b.eventId];
             return (
-              <div key={b.id} style={{
-                background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 12, padding: "16px 20px",
-              }}>
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 16 }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {/* Мероприятие */}
+              <div key={b.id} className="card">
+                <div className="flex items-start gap-4">
+                  <div className="flex-1 min-w-0">
                     {ev && (
-                      <div style={{ fontSize: 11, fontFamily: "monospace", color: "#00e5ff", marginBottom: 6 }}>
+                      <div className="text-[11px] font-mono text-[#00e5ff] mb-1.5">
                         {ev.title} · {formatDate(ev.date)}, {ev.time}
                       </div>
                     )}
-                    {/* Основная инфа */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 6 }}>
-                      <span style={{ fontWeight: 600, fontSize: 15 }}>{b.name}</span>
-                      <span style={{ fontSize: 13, color: "rgba(244,242,255,0.5)" }}>«{b.teamName}»</span>
-                      <span style={{
-                        fontSize: 11, padding: "2px 8px", borderRadius: 20, fontFamily: "monospace",
-                        ...STATUS_COLORS[b.status],
-                      }}>
+                    <div className="flex items-center gap-2.5 flex-wrap mb-1.5">
+                      <span className="font-semibold text-[15px]">{b.name}</span>
+                      <span className="text-[13px] text-white/50">«{b.teamName}»</span>
+                      <span className={cn("text-[11px] px-2 py-0.5 rounded-full font-mono", STATUS_STYLES[b.status])}>
                         {STATUS_LABELS[b.status]}
                       </span>
                     </div>
-                    {/* Детали */}
-                    <div style={{ fontSize: 13, color: "rgba(244,242,255,0.5)", display: "flex", gap: 14, flexWrap: "wrap" }}>
-                      {/* Редактирование кол-ва */}
+                    <div className="text-[13px] text-white/50 flex gap-3.5 flex-wrap">
                       {editId === b.id ? (
-                        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span className="flex items-center gap-1.5">
                           <span>👥</span>
                           <input
                             type="number" min={1} max={8}
                             value={editPeople}
                             onChange={e => setEditPeople(Number(e.target.value))}
-                            style={{ width: 48, ...inlineInputStyle }}
+                            className="w-12 px-1.5 py-0.5 bg-white/[0.08] border border-white/20 rounded-md text-[#f4f2ff] text-[13px] outline-none"
                             autoFocus
                           />
-                          <button onClick={() => handleSavePeople(b.id)} style={inlineBtnStyle("#00e5ff", "#0a0420")}>✓</button>
-                          <button onClick={() => setEditId(null)} style={inlineBtnStyle("transparent", "rgba(244,242,255,0.5)", "1px solid rgba(255,255,255,0.12)")}>✕</button>
+                          <button onClick={() => handleSavePeople(b.id)} className="px-2 py-0.5 bg-[#00e5ff] text-[#0a0420] rounded-md text-xs cursor-pointer border-none">✓</button>
+                          <button onClick={() => setEditId(null)} className="px-2 py-0.5 bg-transparent text-white/50 border border-white/[0.12] rounded-md text-xs cursor-pointer">✕</button>
                         </span>
                       ) : (
                         <span
                           onClick={() => { setEditId(b.id); setEditPeople(b.people); }}
-                          style={{ cursor: "pointer", borderBottom: "1px dashed rgba(255,255,255,0.2)" }}
+                          className="cursor-pointer border-b border-dashed border-white/20 hover:text-white/70 transition-colors"
                           title="Нажми чтобы изменить"
                         >
                           👥 {b.people} чел.
@@ -170,22 +162,23 @@ export default function BookingsPage() {
                       {b.email && <span>✉ {b.email}</span>}
                     </div>
                   </div>
-
-                  {/* Действия */}
-                  <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                  <div className="flex gap-2 shrink-0">
                     {b.status !== "confirmed" && (
-                      <button onClick={() => handleStatus(b.id, "confirmed")} style={actionBtn("#00e5ff")}>
-                        ✓
-                      </button>
+                      <button
+                        onClick={() => handleStatus(b.id, "confirmed")}
+                        className="w-8 h-8 bg-[#00e5ff]/10 text-[#00e5ff] border-none rounded-lg text-sm cursor-pointer hover:bg-[#00e5ff]/20 transition-colors flex items-center justify-center"
+                      >✓</button>
                     )}
                     {b.status !== "cancelled" && (
-                      <button onClick={() => handleStatus(b.id, "cancelled")} style={actionBtn("rgba(255,255,255,0.15)")}>
-                        ✗
-                      </button>
+                      <button
+                        onClick={() => handleStatus(b.id, "cancelled")}
+                        className="w-8 h-8 bg-white/[0.06] text-white/60 border-none rounded-lg text-sm cursor-pointer hover:bg-white/[0.1] transition-colors flex items-center justify-center"
+                      >✗</button>
                     )}
-                    <button onClick={() => handleDelete(b.id)} style={actionBtn("rgba(255,85,112,0.15)", "#ff5570")}>
-                      🗑
-                    </button>
+                    <button
+                      onClick={() => handleDelete(b.id)}
+                      className="w-8 h-8 bg-[#ff5570]/10 text-[#ff5570] border-none rounded-lg text-sm cursor-pointer hover:bg-[#ff5570]/20 transition-colors flex items-center justify-center"
+                    >🗑</button>
                   </div>
                 </div>
               </div>
@@ -195,28 +188,4 @@ export default function BookingsPage() {
       )}
     </>
   );
-}
-
-const selectStyle: React.CSSProperties = {
-  padding: "8px 12px", background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8,
-  color: "#f4f2ff", fontSize: 13, outline: "none", cursor: "pointer",
-};
-
-const inlineInputStyle: React.CSSProperties = {
-  padding: "2px 6px", background: "rgba(255,255,255,0.08)",
-  border: "1px solid rgba(255,255,255,0.2)", borderRadius: 6,
-  color: "#f4f2ff", fontSize: 13, outline: "none",
-};
-
-function inlineBtnStyle(bg: string, color = "#f4f2ff", border = "none"): React.CSSProperties {
-  return { padding: "2px 8px", background: bg, color, border, borderRadius: 6, fontSize: 12, cursor: "pointer" };
-}
-
-function actionBtn(bg: string, color = "#f4f2ff"): React.CSSProperties {
-  return {
-    width: 32, height: 32, background: bg, color, border: "none",
-    borderRadius: 8, fontSize: 14, cursor: "pointer", display: "flex",
-    alignItems: "center", justifyContent: "center",
-  };
 }

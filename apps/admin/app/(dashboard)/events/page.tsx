@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import EventForm from "@/components/EventForm";
+import { cn } from "@/lib/utils";
 
 interface Event {
   id: number;
@@ -17,10 +18,10 @@ interface Event {
   status: "draft" | "published" | "cancelled";
 }
 
-const STATUS_COLORS = {
-  draft: { bg: "rgba(255,255,255,0.06)", color: "rgba(244,242,255,0.5)" },
-  published: { bg: "rgba(0,229,255,0.1)", color: "#00e5ff" },
-  cancelled: { bg: "rgba(255,85,112,0.1)", color: "#ff5570" },
+const STATUS_STYLES = {
+  draft:     "bg-white/[0.06] text-white/50",
+  published: "bg-[#00e5ff]/10 text-[#00e5ff]",
+  cancelled: "bg-[#ff5570]/10 text-[#ff5570]",
 };
 
 const STATUS_LABELS = { draft: "черновик", published: "опубликовано", cancelled: "отменено" };
@@ -33,8 +34,7 @@ export default function EventsPage() {
   async function load() {
     setLoading(true);
     const res = await fetch("/api/events");
-    const data = await res.json();
-    setEvents(data);
+    setEvents(await res.json());
     setLoading(false);
   }
 
@@ -48,45 +48,39 @@ export default function EventsPage() {
 
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
-        <h1 style={{ margin: 0, fontFamily: "monospace", fontSize: 22 }}>// events</h1>
-        <button onClick={() => setShowForm(true)} style={btnStyle}>
+      <div className="flex justify-between items-center mb-7">
+        <h1 className="m-0 font-mono text-[22px]">// events</h1>
+        <button onClick={() => setShowForm(true)} className="btn-primary">
           + новое мероприятие
         </button>
       </div>
 
       {loading ? (
-        <p style={{ color: "rgba(244,242,255,0.4)", fontFamily: "monospace" }}>загрузка...</p>
+        <p className="text-white/40 font-mono">загрузка...</p>
       ) : events.length === 0 ? (
-        <p style={{ color: "rgba(244,242,255,0.4)", fontFamily: "monospace" }}>// мероприятий пока нет</p>
+        <p className="text-white/40 font-mono">// мероприятий пока нет</p>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div className="flex flex-col gap-3">
           {events.map(ev => (
-            <div key={ev.id} style={{
-              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 12, padding: "18px 22px", display: "flex", alignItems: "center", gap: 16,
-            }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-                  <span style={{ fontWeight: 600, fontSize: 15 }}>{ev.title}</span>
-                  <span style={{
-                    fontSize: 11, padding: "2px 8px", borderRadius: 20, fontFamily: "monospace",
-                    ...STATUS_COLORS[ev.status],
-                  }}>
+            <div key={ev.id} className="card flex items-center gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2.5 mb-1.5">
+                  <span className="font-semibold text-[15px]">{ev.title}</span>
+                  <span className={cn("text-[11px] px-2 py-0.5 rounded-full font-mono", STATUS_STYLES[ev.status])}>
                     {STATUS_LABELS[ev.status]}
                   </span>
                 </div>
-                <div style={{ fontSize: 13, color: "rgba(244,242,255,0.5)", display: "flex", gap: 16, flexWrap: "wrap" }}>
+                <div className="text-[13px] text-white/50 flex gap-4 flex-wrap">
                   {ev.theme && <span>{ev.theme}</span>}
                   <span>{ev.day}, {ev.time}</span>
                   <span>{ev.seats}/{ev.total} мест</span>
                   {ev.host && <span>ведущий: {ev.host}</span>}
                 </div>
               </div>
-              <button onClick={() => deleteEvent(ev.id)} style={{
-                background: "none", border: "1px solid rgba(255,85,112,0.3)", color: "#ff5570",
-                borderRadius: 8, padding: "6px 12px", fontSize: 12, cursor: "pointer",
-              }}>
+              <button
+                onClick={() => deleteEvent(ev.id)}
+                className="bg-transparent border border-[#ff5570]/30 text-[#ff5570] rounded-lg px-3 py-1.5 text-xs cursor-pointer hover:bg-[#ff5570]/10 transition-colors"
+              >
                 удалить
               </button>
             </div>
@@ -103,9 +97,3 @@ export default function EventsPage() {
     </>
   );
 }
-
-const btnStyle: React.CSSProperties = {
-  padding: "10px 18px", background: "#00e5ff", color: "#0a0420",
-  border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
-  fontFamily: "monospace",
-};

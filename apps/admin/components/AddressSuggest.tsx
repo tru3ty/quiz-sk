@@ -51,40 +51,34 @@ export default function AddressSuggest({ value, onChange, placeholder = "Адр�
   }
 
   function select(s: Suggestion) {
-    const full = s.subtitle ? `${s.title.text}, ${s.subtitle.text}` : s.title.text;
-    onChange(full);
+    onChange(s.subtitle ? `${s.title.text}, ${s.subtitle.text}` : s.title.text);
     setSuggestions([]);
     setOpen(false);
   }
 
   return (
-    <div ref={containerRef} style={{ position: "relative" }}>
+    <div ref={containerRef} className="relative">
       <input
         type="text"
         value={value}
         onChange={handleInput}
         onFocus={() => suggestions.length > 0 && setOpen(true)}
         placeholder={placeholder}
-        style={inputStyle}
+        className="input"
         autoComplete="off"
       />
       {open && suggestions.length > 0 && (
-        <ul style={{
-          position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0,
-          background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.12)",
-          borderRadius: 8, margin: 0, padding: "4px 0", listStyle: "none",
-          zIndex: 100, boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-        }}>
+        <ul className="absolute top-[calc(100%+4px)] left-0 right-0 bg-[#1a1a2e] border border-white/[0.12] rounded-lg m-0 p-1 list-none z-[100] shadow-xl">
           {suggestions.map((s, i) => (
-            <li key={i} onMouseDown={() => select(s)} style={{
-              padding: "10px 14px", cursor: "pointer", fontSize: 14,
-              color: "#f4f2ff", transition: "background 0.1s",
-            }}
-              onMouseEnter={e => (e.currentTarget.style.background = "rgba(0,229,255,0.08)")}
-              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+            <li
+              key={i}
+              onMouseDown={() => select(s)}
+              className="px-3.5 py-2.5 cursor-pointer rounded-md text-sm text-[#f4f2ff] hover:bg-[#00e5ff]/[0.08] transition-colors"
             >
-              <div style={{ fontWeight: 500 }}>{s.title.text}</div>
-              {s.subtitle && <div style={{ fontSize: 12, color: "rgba(244,242,255,0.5)", marginTop: 2 }}>{s.subtitle.text}</div>}
+              <div className="font-medium">{s.title.text}</div>
+              {s.subtitle && (
+                <div className="text-xs text-white/50 mt-0.5">{s.subtitle.text}</div>
+              )}
             </li>
           ))}
         </ul>
@@ -92,11 +86,3 @@ export default function AddressSuggest({ value, onChange, placeholder = "Адр�
     </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "10px 14px",
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 8, color: "#f4f2ff", fontSize: 14, outline: "none",
-  boxSizing: "border-box",
-};

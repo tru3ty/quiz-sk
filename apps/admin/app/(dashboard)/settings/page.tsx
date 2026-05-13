@@ -29,21 +29,16 @@ export default function SettingsPage() {
 
   return (
     <>
-      <h1 style={{ margin: "0 0 28px", fontFamily: "monospace", fontSize: 22 }}>// settings</h1>
+      <h1 className="m-0 mb-7 font-mono text-[22px]">// settings</h1>
 
-      <div style={{
-        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-        borderRadius: 12, padding: 24, maxWidth: 480,
-      }}>
-        <h2 style={{ margin: "0 0 20px", fontFamily: "monospace", fontSize: 15, color: "rgba(244,242,255,0.7)" }}>
-          // уведомления
-        </h2>
+      <div className="card max-w-[480px]">
+        <h2 className="m-0 mb-5 font-mono text-[15px] text-white/70">// уведомления</h2>
         {loading ? (
-          <p style={{ color: "rgba(244,242,255,0.4)", fontFamily: "monospace" }}>загрузка...</p>
+          <p className="text-white/40 font-mono">загрузка...</p>
         ) : (
-          <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label style={{ fontSize: 12, color: "rgba(244,242,255,0.5)", fontFamily: "monospace" }}>
+          <form onSubmit={handleSave} className="flex flex-col gap-3.5">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-white/50 font-mono">
                 email для уведомлений о новых бронях
               </label>
               <input
@@ -51,10 +46,10 @@ export default function SettingsPage() {
                 value={adminEmail}
                 onChange={e => setAdminEmail(e.target.value)}
                 placeholder="admin@example.com"
-                style={inputStyle}
+                className="input"
               />
             </div>
-            <button type="submit" style={btnStyle}>
+            <button type="submit" className="btn-primary self-start">
               {saved ? "✓ сохранено" : "сохранить →"}
             </button>
           </form>
@@ -63,15 +58,3 @@ export default function SettingsPage() {
     </>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "10px 14px",
-  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 8, color: "#f4f2ff", fontSize: 14, outline: "none", boxSizing: "border-box",
-};
-
-const btnStyle: React.CSSProperties = {
-  padding: "10px 18px", background: "#00e5ff", color: "#0a0420",
-  border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
-  fontFamily: "monospace", alignSelf: "flex-start",
-};

@@ -1,5 +1,27 @@
 import { useState, useEffect } from "react";
+import { z } from "zod";
 import { peopleWord } from "../data/events.js";
+
+const phoneSchema = z
+  .string()
+  .refine((v) => /^8 \(\d{3}\) \d{3}-\d{2}-\d{2}$/.test(v), {
+    message: "Введи номер полностью",
+  });
+
+const emailSchema = z.email({ message: "Некорректный email" });
+
+function formatPhone(raw) {
+  const digits = raw.replace(/\D/g, "");
+  // normalize: if starts with 7 or 9 treat as russian
+  const d = digits.startsWith("7") ? "8" + digits.slice(1) : digits.startsWith("9") ? "8" + digits : digits;
+  const n = d.startsWith("8") ? d.slice(1) : d;
+  let out = "8";
+  if (n.length > 0) out += " (" + n.slice(0, 3);
+  if (n.length >= 3) out += ") " + n.slice(3, 6);
+  if (n.length >= 6) out += "-" + n.slice(6, 8);
+  if (n.length >= 8) out += "-" + n.slice(8, 10);
+  return out;
+}
 
 function Field({ label, hint, children }) {
   return (
@@ -22,6 +44,7 @@ export default function BookingModal({ event, onClose, apiBase }) {
   const [done, setDone]     = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]   = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === "Escape") onClose(); };
@@ -38,6 +61,13 @@ export default function BookingModal({ event, onClose, apiBase }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    const errs = {};
+    const phoneResult = phoneSchema.safeParse(phone);
+    if (!phoneResult.success) errs.phone = phoneResult.error.issues[0].message;
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) errs.email = emailResult.error.issues[0].message;
+    if (Object.keys(errs).length) { setFieldErrors(errs); return; }
+    setFieldErrors({});
     setLoading(true);
     setError("");
     try {
@@ -134,11 +164,34 @@ export default function BookingModal({ event, onClose, apiBase }) {
                   </div>
                 </Field>
                 <Field label="Телефон" hint="чтобы предупредить">
-                  <input className={inputCls} required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+7 ___ ___ __ __" />
+                  <input
+                    className={inputCls + (fieldErrors.phone ? " !border-[#ff5570]" : "")}
+                    required
+                    value={phone}
+                    onChange={(e) => {
+                      const formatted = formatPhone(e.target.value);
+                      setPhone(formatted);
+                      if (fieldErrors.phone) setFieldErrors((f) => ({ ...f, phone: undefined }));
+                    }}
+                    placeholder="8 (999) 123-45-67"
+                    inputMode="tel"
+                  />
+                  {fieldErrors.phone && <p className="text-[#ff5570] text-[11px] mt-1 font-jbmono">{fieldErrors.phone}</p>}
                 </Field>
               </div>
               <Field label="Email" hint="для подтверждения">
-                <input className={inputCls} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                <input
+                  className={inputCls + (fieldErrors.email ? " !border-[#ff5570]" : "")}
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (fieldErrors.email) setFieldErrors((f) => ({ ...f, email: undefined }));
+                  }}
+                  placeholder="you@example.com"
+                />
+                {fieldErrors.email && <p className="text-[#ff5570] text-[11px] mt-1 font-jbmono">{fieldErrors.email}</p>}
               </Field>
 
               <div className="flex justify-between items-center mt-1.5 pt-3.5 border-t border-dashed border-(--color-orb-border) font-jbmono text-xs text-(--color-orb-sub)">

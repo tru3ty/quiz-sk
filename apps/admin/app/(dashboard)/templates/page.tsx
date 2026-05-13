@@ -57,62 +57,55 @@ export default function TemplatesPage() {
 
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28 }}>
-        <h1 style={{ margin: 0, fontFamily: "monospace", fontSize: 22 }}>// templates</h1>
-        <button onClick={() => setShowForm(v => !v)} style={btnStyle}>
+      <div className="flex justify-between items-center mb-7">
+        <h1 className="m-0 font-mono text-[22px]">// templates</h1>
+        <button onClick={() => setShowForm(v => !v)} className="btn-primary">
           {showForm ? "✕ закрыть" : "+ новый шаблон"}
         </button>
       </div>
 
       {showForm && (
-        <form onSubmit={handleCreate} style={{
-          background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-          borderRadius: 12, padding: 24, marginBottom: 28,
-          display: "flex", flexDirection: "column", gap: 14,
-        }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+        <form onSubmit={handleCreate} className="card mb-7 flex flex-col gap-3.5">
+          <div className="grid grid-cols-2 gap-3.5">
             <Field label="Название *">
-              <input style={inputStyle} required value={fields.title} onChange={e => set("title", e.target.value)} placeholder="StarQuiz Classic" />
+              <input className="input" required value={fields.title} onChange={e => set("title", e.target.value)} placeholder="StarQuiz Classic" />
             </Field>
             <Field label="Тема">
-              <input style={inputStyle} value={fields.theme} onChange={e => set("theme", e.target.value)} placeholder="Поп-культура..." />
+              <input className="input" value={fields.theme} onChange={e => set("theme", e.target.value)} placeholder="Поп-культура..." />
             </Field>
           </div>
           <Field label="Мест">
-            <input style={inputStyle} type="number" min={1} value={fields.total} onChange={e => set("total", e.target.value)} />
+            <input className="input" type="number" min={1} value={fields.total} onChange={e => set("total", e.target.value)} />
           </Field>
           <Field label="Теги (через запятую)">
-            <input style={inputStyle} value={fields.tags} onChange={e => set("tags", e.target.value)} placeholder="квиз, музыка" />
+            <input className="input" value={fields.tags} onChange={e => set("tags", e.target.value)} placeholder="квиз, музыка" />
           </Field>
-          <button type="submit" disabled={saving} style={{ ...btnStyle, alignSelf: "flex-end" }}>
+          <button type="submit" disabled={saving} className="btn-primary self-end">
             {saving ? "Сохранение..." : "Создать шаблон →"}
           </button>
         </form>
       )}
 
       {loading ? (
-        <p style={{ color: "rgba(244,242,255,0.4)", fontFamily: "monospace" }}>загрузка...</p>
+        <p className="text-white/40 font-mono">загрузка...</p>
       ) : templates.length === 0 ? (
-        <p style={{ color: "rgba(244,242,255,0.4)", fontFamily: "monospace" }}>// шаблонов пока нет</p>
+        <p className="text-white/40 font-mono">// шаблонов пока нет</p>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="flex flex-col gap-2.5">
           {templates.map(t => (
-            <div key={t.id} style={{
-              background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 12, padding: "16px 20px", display: "flex", alignItems: "center", gap: 16,
-            }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 4 }}>{t.title}</div>
-                <div style={{ fontSize: 13, color: "rgba(244,242,255,0.5)", display: "flex", gap: 14, flexWrap: "wrap" }}>
+            <div key={t.id} className="card flex items-center gap-4">
+              <div className="flex-1">
+                <div className="font-semibold text-[15px] mb-1">{t.title}</div>
+                <div className="text-[13px] text-white/50 flex gap-3.5 flex-wrap">
                   {t.theme && <span>{t.theme}</span>}
                   <span>{t.total} мест</span>
                   {t.tags.length > 0 && <span>{t.tags.join(", ")}</span>}
                 </div>
               </div>
-              <button onClick={() => deleteTemplate(t.id)} style={{
-                background: "none", border: "1px solid rgba(255,85,112,0.3)", color: "#ff5570",
-                borderRadius: 8, padding: "6px 12px", fontSize: 12, cursor: "pointer",
-              }}>
+              <button
+                onClick={() => deleteTemplate(t.id)}
+                className="bg-transparent border border-[#ff5570]/30 text-[#ff5570] rounded-lg px-3 py-1.5 text-xs cursor-pointer hover:bg-[#ff5570]/10 transition-colors"
+              >
                 удалить
               </button>
             </div>
@@ -125,21 +118,9 @@ export default function TemplatesPage() {
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <label style={{ fontSize: 12, color: "rgba(244,242,255,0.5)", fontFamily: "monospace" }}>{label}</label>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs text-white/50 font-mono">{label}</label>
       {children}
     </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "10px 14px",
-  background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 8, color: "#f4f2ff", fontSize: 14, outline: "none", boxSizing: "border-box",
-};
-
-const btnStyle: React.CSSProperties = {
-  padding: "10px 18px", background: "#00e5ff", color: "#0a0420",
-  border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
-  fontFamily: "monospace",
-};

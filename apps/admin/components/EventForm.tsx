@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from "react";
 import AddressSuggest from "./AddressSuggest";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
+import { TimePicker } from "@/components/ui/time-picker";
 
 interface Template {
   id: number;
@@ -18,17 +23,16 @@ interface Props {
 }
 
 const STATUSES = [
-  { value: "draft", label: "Черновик" },
-  { value: "published", label: "Опубликовано" },
-  { value: "cancelled", label: "Отменено" },
+  { value: "draft",      label: "Черновик" },
+  { value: "published",  label: "Опубликовано" },
+  { value: "cancelled",  label: "Отменено" },
 ];
 
 const DAYS_RU = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
 
 function getDayName(dateStr: string): string {
   if (!dateStr) return "";
-  const d = new Date(dateStr);
-  return DAYS_RU[d.getDay()];
+  return DAYS_RU[new Date(dateStr).getDay()];
 }
 
 export default function EventForm({ onClose, onSaved }: Props) {
@@ -56,7 +60,6 @@ export default function EventForm({ onClose, onSaved }: Props) {
   }
 
   function applyTemplate(id: string) {
-    if (!id) return;
     const t = templates.find(t => t.id === Number(id));
     if (!t) return;
     setFields(f => ({
@@ -84,17 +87,14 @@ export default function EventForm({ onClose, onSaved }: Props) {
         venueId = (await vRes.json()).id;
       }
 
-      const dateTs = fields.date ? Math.floor(new Date(fields.date).getTime() / 1000) : 0;
-      const day = getDayName(fields.date);
-
       await fetch("/api/events", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: fields.title,
           theme: fields.theme,
-          date: dateTs,
-          day,
+          date: fields.date ? Math.floor(new Date(fields.date).getTime() / 1000) : 0,
+          day: getDayName(fields.date),
           time: fields.time,
           seats: 0,
           total: Number(fields.total),
@@ -116,50 +116,57 @@ export default function EventForm({ onClose, onSaved }: Props) {
   const dayHint = getDayName(fields.date);
 
   return (
-    <div style={{
-      position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
-      display: "flex", alignItems: "center", justifyContent: "center", zIndex: 50,
-    }} onClick={e => e.target === e.currentTarget && onClose()}>
-      <div style={{
-        background: "#0d0d1a", border: "1px solid rgba(255,255,255,0.1)",
-        borderRadius: 16, padding: 32, width: "100%", maxWidth: 560,
-        maxHeight: "90vh", overflowY: "auto",
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-          <h2 style={{ margin: 0, fontFamily: "monospace", fontSize: 18 }}>// новое мероприятие</h2>
-          <button onClick={onClose} style={{ background: "none", border: "none", color: "rgba(244,242,255,0.5)", fontSize: 20, cursor: "pointer" }}>✕</button>
+    <div
+      className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+      onClick={e => e.target === e.currentTarget && onClose()}
+    >
+      <div className="bg-[#0d0d1a] border border-white/10 rounded-2xl p-8 w-full max-w-[560px] max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="m-0 font-mono text-[18px]">// новое мероприятие</h2>
+          <button
+            onClick={onClose}
+            className="bg-transparent border-none text-white/50 text-xl cursor-pointer hover:text-white/80 transition-colors"
+          >
+            ✕
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
 
           {templates.length > 0 && (
             <Field label="Шаблон">
-              <select style={inputStyle} defaultValue="" onChange={e => applyTemplate(e.target.value)}>
-                <option value="">— выбрать шаблон —</option>
-                {templates.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
-              </select>
+              <Select onValueChange={applyTemplate}>
+                <SelectTrigger>
+                  <SelectValue placeholder="— выбрать шаблон —" />
+                </SelectTrigger>
+                <SelectContent>
+                  {templates.map(t => (
+                    <SelectItem key={t.id} value={String(t.id)}>{t.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </Field>
           )}
 
           <Field label="Название" required>
-            <input style={inputStyle} required value={fields.title} onChange={e => set("title", e.target.value)} placeholder="StarQuiz: Весенний сезон" />
+            <input className="input" required value={fields.title} onChange={e => set("title", e.target.value)} placeholder="StarQuiz: Весенний сезон" />
           </Field>
 
           <Field label="Тема">
-            <input style={inputStyle} value={fields.theme} onChange={e => set("theme", e.target.value)} placeholder="Поп-культура, 90-е..." />
+            <input className="input" value={fields.theme} onChange={e => set("theme", e.target.value)} placeholder="Поп-культура, 90-е..." />
           </Field>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+          <div className="grid grid-cols-2 gap-3.5">
             <Field label={`Дата${dayHint ? ` — ${dayHint}` : ""}`} required>
-              <input style={inputStyle} type="date" required value={fields.date} onChange={e => set("date", e.target.value)} />
+              <DatePicker value={fields.date} onChange={v => set("date", v)} />
             </Field>
             <Field label="Время">
-              <input style={inputStyle} type="time" value={fields.time} onChange={e => set("time", e.target.value)} />
+              <TimePicker value={fields.time} onChange={v => set("time", v)} />
             </Field>
           </div>
 
           <Field label="Всего мест" required>
-            <input style={inputStyle} type="number" required min={1} value={fields.total} onChange={e => set("total", e.target.value)} />
+            <input className="input" type="number" required min={1} value={fields.total} onChange={e => set("total", e.target.value)} />
           </Field>
 
           <Field label="Адрес площадки">
@@ -167,26 +174,41 @@ export default function EventForm({ onClose, onSaved }: Props) {
           </Field>
 
           <Field label="Название площадки">
-            <input style={inputStyle} value={venueName} onChange={e => setVenueName(e.target.value)} placeholder="Бар Gagarin, Лофт 42..." />
+            <input className="input" value={venueName} onChange={e => setVenueName(e.target.value)} placeholder="Бар Gagarin, Лофт 42..." />
           </Field>
 
           <Field label="Теги (через запятую)">
-            <input style={inputStyle} value={fields.tags} onChange={e => set("tags", e.target.value)} placeholder="квиз, музыка, 90-е" />
+            <input className="input" value={fields.tags} onChange={e => set("tags", e.target.value)} placeholder="квиз, музыка, 90-е" />
           </Field>
 
           <Field label="Статус">
-            <select style={inputStyle} value={fields.status} onChange={e => set("status", e.target.value as typeof fields.status)}>
-              {STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
-            </select>
+            <Select value={fields.status} onValueChange={v => set("status", v)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUSES.map(s => (
+                  <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
 
-          {error && <p style={{ color: "#ff5570", margin: 0, fontSize: 14 }}>{error}</p>}
+          {error && <p className="text-[#ff5570] m-0 text-sm">{error}</p>}
 
-          <div style={{ display: "flex", gap: 12, marginTop: 8 }}>
-            <button type="button" onClick={onClose} style={{ ...btnStyle, background: "rgba(255,255,255,0.05)", color: "rgba(244,242,255,0.7)", flex: 1 }}>
+          <div className="flex gap-3 mt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3 bg-white/[0.05] text-white/70 border-none rounded-xl font-bold text-sm cursor-pointer hover:bg-white/[0.08] transition-colors"
+            >
               Отмена
             </button>
-            <button type="submit" disabled={loading} style={{ ...btnStyle, flex: 2 }}>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-[2] btn-primary disabled:opacity-60"
+            >
               {loading ? "Сохранение..." : "Создать →"}
             </button>
           </div>
@@ -198,24 +220,11 @@ export default function EventForm({ onClose, onSaved }: Props) {
 
 function Field({ label, children, required }: { label: string; children: React.ReactNode; required?: boolean }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <label style={{ fontSize: 12, color: "rgba(244,242,255,0.5)", fontFamily: "monospace" }}>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs text-white/50 font-mono">
         {label}{required && " *"}
       </label>
       {children}
     </div>
   );
 }
-
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "10px 14px",
-  background: "rgba(255,255,255,0.05)",
-  border: "1px solid rgba(255,255,255,0.12)",
-  borderRadius: 8, color: "#f4f2ff", fontSize: 14, outline: "none",
-  boxSizing: "border-box",
-};
-
-const btnStyle: React.CSSProperties = {
-  padding: "12px", background: "#00e5ff", color: "#0a0420",
-  border: "none", borderRadius: 10, fontWeight: 700, fontSize: 14, cursor: "pointer",
-};
