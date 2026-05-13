@@ -1,7 +1,11 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = "onboarding@resend.dev";
+
+function getResend() {
+  if (!process.env.RESEND_API_KEY) throw new Error("RESEND_API_KEY is not set");
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 interface BookingEmailData {
   userName: string;
@@ -15,7 +19,7 @@ interface BookingEmailData {
 }
 
 export async function sendBookingConfirmation(data: BookingEmailData) {
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to: data.userEmail,
     subject: `Бронь подтверждена — ${data.eventTitle}`,
@@ -38,7 +42,7 @@ export async function sendBookingConfirmation(data: BookingEmailData) {
 }
 
 export async function sendAdminNotification(adminEmail: string, data: BookingEmailData) {
-  await resend.emails.send({
+  await getResend().emails.send({
     from: FROM,
     to: adminEmail,
     subject: `Новая бронь — ${data.eventTitle}`,
